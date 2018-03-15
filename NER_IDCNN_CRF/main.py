@@ -1,19 +1,20 @@
 # encoding=utf8
-import os
-import codecs
-import pickle
 import itertools
+import os
+import pickle
+import random
 from collections import OrderedDict
 
-import tensorflow as tf
 import numpy as np
-from model import Model
-from loader import load_sentences, update_tag_scheme
-from loader import char_mapping, tag_mapping
+import tensorflow as tf
+
+from data_utils import load_word2vec, input_from_line, BatchManager
 from loader import augment_with_pretrained, prepare_dataset
+from loader import char_mapping, tag_mapping
+from loader import load_sentences, update_tag_scheme
+from model import Model
 from utils import get_logger, make_path, clean, create_model, save_model
 from utils import print_config, save_config, load_config, test_ner
-from data_utils import load_word2vec, create_input, input_from_line, BatchManager
 
 flags = tf.app.flags
 flags.DEFINE_boolean("clean",       False,      "clean train folder")
@@ -104,14 +105,25 @@ def evaluate(sess, model, name, data, id_to_tag, logger):
         return f1 > best_test_f1
 
 
+def split_sentences(total):
+    random.seed(12345678)
+    random.shuffle(total)
+    return total[:25000], total[25000:29000], total[29000:]
+
+
 def train():
     # load data sets
-    train_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros)
-    dev_sentences = load_sentences(FLAGS.dev_file, FLAGS.lower, FLAGS.zeros)
-    test_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros)
+    # train_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros)
+    # dev_sentences = load_sentences(FLAGS.dev_file, FLAGS.lower, FLAGS.zeros)
+    # test_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros)
+
+    # split data to train, dev and test randomly
+    total_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros)
+    train_sentences, dev_sentences, test_sentences = split_sentences(total_sentences)
 
     # Use selected tagging scheme (IOB / IOBES)
     update_tag_scheme(train_sentences, FLAGS.tag_schema)
+    update_tag_scheme(dev_sentences, FLAGS.tag_schema)
     update_tag_scheme(test_sentences, FLAGS.tag_schema)
 
     # create maps if not exist
@@ -215,7 +227,6 @@ def evaluate_line():
 
 
 def main(_):
-
     if FLAGS.train:
         if FLAGS.clean:
             clean(FLAGS)
@@ -227,5 +238,8 @@ def main(_):
 if __name__ == "__main__":
     tf.app.run(main)
 
+
+# 测试用新的路径
+#--pre_emb false --ckpt_path /data1/xuejiao/model/ner/ckpt --summary_path /data1/xuejiao/model/ner/summary --log_file /data1/xuejiao/model/ner/train.log --map_file /data1/xuejiao/model/ner/maps.pkl --vocab_file /data1/xuejiao/model/ner/vocab.json --result_path /data1/xuejiao/model/ner/result/  --emb_file /data1/xuejiao/model/ner/vec.txt --train_file /data1/xuejiao/data/ner-tag.out.0314
 
 
