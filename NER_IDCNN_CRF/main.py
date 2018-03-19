@@ -108,7 +108,7 @@ def evaluate(sess, model, name, data, id_to_tag, logger):
 def split_sentences(total):
     random.seed(12345678)
     random.shuffle(total)
-    return total[:25000], total[25000:29000], total[29000:]
+    return total[:30000], total[30000:32872], total[32872:]
 
 
 def train():
@@ -119,12 +119,14 @@ def train():
 
     # split data to train, dev and test randomly
     total_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros)
+    update_tag_scheme(total_sentences, FLAGS.tag_schema)
+
     train_sentences, dev_sentences, test_sentences = split_sentences(total_sentences)
 
     # Use selected tagging scheme (IOB / IOBES)
-    update_tag_scheme(train_sentences, FLAGS.tag_schema)
-    update_tag_scheme(dev_sentences, FLAGS.tag_schema)
-    update_tag_scheme(test_sentences, FLAGS.tag_schema)
+    # update_tag_scheme(train_sentences, FLAGS.tag_schema)
+    # update_tag_scheme(dev_sentences, FLAGS.tag_schema)
+    # update_tag_scheme(test_sentences, FLAGS.tag_schema)
 
     # create maps if not exist
     if not os.path.isfile(FLAGS.map_file):
