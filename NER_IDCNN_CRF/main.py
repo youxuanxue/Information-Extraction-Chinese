@@ -107,12 +107,13 @@ def evaluate(sess, model, name, data, id_to_tag, logger):
 
 def split_sentences(total):
     length = len(total)
-    dev = length / 10
-    test = dev
-    train = length - dev - test
+    dev_len = length / 10
+    test_len = dev_len
+    train_len = length - dev_len - test_len
+    print("train_len: {} dev_len: {} test_len: {}".format(train_len, dev_len, test_len))
     random.seed(12345678)
     random.shuffle(total)
-    return total[:train], total[train:train + dev], total[train + dev:]
+    return total[:train_len], total[train_len:train_len + dev_len], total[train_len + dev_len:]
 
 
 def train():
