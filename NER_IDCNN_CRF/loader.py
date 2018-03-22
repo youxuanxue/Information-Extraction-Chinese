@@ -13,6 +13,7 @@ def load_sentences(path, lower, zeros):
     """
     sentences = []
     sentence = []
+    sentence_num = 0
     num = 0
     for line in codecs.open(path, 'r', 'utf8'):
         num+=1
@@ -22,6 +23,11 @@ def load_sentences(path, lower, zeros):
             if len(sentence) > 0:
                 if 'DOCSTART' not in sentence[0][0]:
                     sentences.append(sentence)
+                    sentence_num += 1
+                    if sentence_num % 10000 == 0:
+                        print("sentence_num: {}".format(sentence_num))
+                    if sentence_num > 5000000:
+                        break
                 sentence = []
         else:
             if line[0] == " ":
@@ -30,7 +36,7 @@ def load_sentences(path, lower, zeros):
                 # word[0] = " "
             else:
                 word= line.split()
-            assert len(word) >= 2, print([word[0]])
+            assert len(word) >= 2, print("error num: {}".format(num))
             sentence.append(word)
     if len(sentence) > 0:
         if 'DOCSTART' not in sentence[0][0]:
