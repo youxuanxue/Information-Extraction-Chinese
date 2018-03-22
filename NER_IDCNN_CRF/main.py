@@ -246,7 +246,3 @@ if __name__ == "__main__":
     tf.app.run(main)
 
 
-# 测试用新的路径
-#--pre_emb false --ckpt_path /data1/xuejiao/model/ner/ckpt --summary_path /data1/xuejiao/model/ner/summary --log_file /data1/xuejiao/model/ner/train.log --map_file /data1/xuejiao/model/ner/maps.pkl --vocab_file /data1/xuejiao/model/ner/vocab.json --result_path /data1/xuejiao/model/ner/result/  --emb_file /data1/xuejiao/model/ner/vec.txt --train_file /data1/xuejiao/data/ner-tag.out.0314
-
-

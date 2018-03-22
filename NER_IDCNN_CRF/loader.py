@@ -26,7 +26,7 @@ def load_sentences(path, lower, zeros):
                     sentence_num += 1
                     if sentence_num % 10000 == 0:
                         print("sentence_num: {}".format(sentence_num))
-                    if sentence_num > 5000000:
+                    if sentence_num > 1000000:
                         break
                 sentence = []
         else:
