@@ -35,6 +35,8 @@ def load_sentences(path, lower, zeros):
     if len(sentence) > 0:
         if 'DOCSTART' not in sentence[0][0]:
             sentences.append(sentence)
+
+    print("sentences: {}".format(len(sentences)))
     return sentences
 
 
