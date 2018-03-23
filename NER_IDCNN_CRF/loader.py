@@ -6,7 +6,7 @@ from data_utils import create_dico, create_mapping, zero_digits
 from data_utils import iob2, iob_iobes, get_seg_features
 
 
-def load_sentences(path, lower, zeros):
+def load_sentences(path, lower, zeros, max_sentence):
     """
     Load sentences. A line must contain at least a word and its tag.
     Sentences are separated by empty lines.
@@ -26,7 +26,7 @@ def load_sentences(path, lower, zeros):
                     sentence_num += 1
                     if sentence_num % 10000 == 0:
                         print("sentence_num: {}".format(sentence_num))
-                    if sentence_num > 1000000:
+                    if sentence_num > max_sentence:
                         break
                 sentence = []
         else:

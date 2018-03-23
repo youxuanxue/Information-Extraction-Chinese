@@ -17,6 +17,7 @@ from utils import get_logger, make_path, clean, create_model, save_model
 from utils import print_config, save_config, load_config, test_ner
 
 flags = tf.app.flags
+
 flags.DEFINE_boolean("clean",       False,      "clean train folder")
 flags.DEFINE_boolean("train",       False,      "Whether train the model")
 # configurations for the model
@@ -28,7 +29,7 @@ flags.DEFINE_string("tag_schema",   "iobes",    "tagging schema iobes or iob")
 # configurations for training
 flags.DEFINE_float("clip",          5,          "Gradient clip")
 flags.DEFINE_float("dropout",       0.5,        "Dropout rate")
-flags.DEFINE_float("batch_size",    20,         "batch size")
+flags.DEFINE_integer("batch_size",    20,         "batch size")
 flags.DEFINE_float("lr",            0.001,      "Initial learning rate")
 flags.DEFINE_string("optimizer",    "adam",     "Optimizer for training")
 flags.DEFINE_boolean("pre_emb",     True,       "Wither use pre-trained embedding")
@@ -49,6 +50,8 @@ flags.DEFINE_string("emb_file",     os.path.join("data", "vec.txt"),  "Path for 
 flags.DEFINE_string("train_file",   os.path.join("data", "example.train"),  "Path for train data")
 flags.DEFINE_string("dev_file",     os.path.join("data", "example.dev"),    "Path for dev data")
 flags.DEFINE_string("test_file",    os.path.join("data", "example.test"),   "Path for test data")
+
+flags.DEFINE_integer("max_sentence", 50000,  "maximum sentence num")
 
 flags.DEFINE_string("model_type", "idcnn", "Model type, can be idcnn or bilstm")
 #flags.DEFINE_string("model_type", "bilstm", "Model type, can be idcnn or bilstm")
@@ -123,7 +126,7 @@ def train():
     # test_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros)
 
     # split data to train, dev and test randomly
-    total_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros)
+    total_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
     update_tag_scheme(total_sentences, FLAGS.tag_schema)
 
     train_sentences, dev_sentences, test_sentences = split_sentences(total_sentences)
@@ -210,6 +213,22 @@ def train():
             evaluate(sess, model, "test", test_manager, id_to_tag, logger)
 
 
+def evaluate_corpus():
+    config = load_config(FLAGS.config_file)
+    logger = get_logger(FLAGS.log_file)
+    sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
+    test_manager = BatchManager(sentences, 100)
+
+    # limit GPU memory
+    tf_config = tf.ConfigProto()
+    tf_config.gpu_options.allow_growth = True
+    with open(FLAGS.map_file, "rb") as f:
+        char_to_id, id_to_char, tag_to_id, id_to_tag = pickle.load(f)
+    with tf.Session(config=tf_config) as sess:
+        model = create_model(sess, Model, FLAGS.ckpt_path, load_word2vec, config, id_to_char, logger)
+        evaluate(sess, model, "test", test_manager, id_to_tag, logger)
+
+
 def evaluate_line():
     config = load_config(FLAGS.config_file)
     logger = get_logger(FLAGS.log_file)
@@ -239,7 +258,8 @@ def main(_):
             clean(FLAGS)
         train()
     else:
-        evaluate_line()
+        # evaluate_line()
+        evaluate_corpus()
 
 
 if __name__ == "__main__":

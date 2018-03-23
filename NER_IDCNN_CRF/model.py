@@ -14,7 +14,7 @@ class Model(object):
     def __init__(self, config):
 
         self.config = config
-        
+
         self.lr = config["lr"]
         self.char_dim = config["char_dim"]
         self.lstm_dim = config["lstm_dim"]
@@ -28,8 +28,8 @@ class Model(object):
         self.best_dev_f1 = tf.Variable(0.0, trainable=False)
         self.best_test_f1 = tf.Variable(0.0, trainable=False)
         self.initializer = initializers.xavier_initializer()
-        
-        
+
+
 
         # add placeholders for the model
 
@@ -52,8 +52,8 @@ class Model(object):
         self.lengths = tf.cast(length, tf.int32)
         self.batch_size = tf.shape(self.char_inputs)[0]
         self.num_steps = tf.shape(self.char_inputs)[-1]
-        
-        
+
+
         #Add model type by crownpku， bilstm or idcnn
         self.model_type = config['model_type']
         #parameters for idcnn
@@ -69,12 +69,12 @@ class Model(object):
             },
         ]
         self.filter_width = 3
-        self.num_filter = self.lstm_dim 
+        self.num_filter = self.lstm_dim
         self.embedding_dim = self.char_dim + self.seg_dim
         self.repeat_times = 4
         self.cnn_output_width = 0
-        
-        
+
+
 
         # embeddings for chinese character and segmentation representation
         embedding = self.embedding_layer(self.char_inputs, self.seg_inputs, config)
@@ -88,7 +88,7 @@ class Model(object):
 
             # logits for tags
             self.logits = self.project_layer_bilstm(model_outputs)
-        
+
         elif self.model_type == 'idcnn':
             # apply dropout before feed to idcnn layer
             model_inputs = tf.nn.dropout(embedding, self.dropout)
@@ -98,7 +98,7 @@ class Model(object):
 
             # logits for tags
             self.logits = self.project_layer_idcnn(model_outputs)
-        
+
         else:
             raise KeyError
 
@@ -130,7 +130,7 @@ class Model(object):
         :param char_inputs: one-hot encoding of sentence
         :param seg_inputs: segmentation feature
         :param config: wither use segmentation feature
-        :return: [1, num_steps, embedding size], 
+        :return: [1, num_steps, embedding size],
         """
 
         embedding = []
@@ -152,8 +152,8 @@ class Model(object):
 
     def biLSTM_layer(self, model_inputs, lstm_dim, lengths, name=None):
         """
-        :param lstm_inputs: [batch_size, num_steps, emb_size] 
-        :return: [batch_size, num_steps, 2*lstm_dim] 
+        :param lstm_inputs: [batch_size, num_steps, emb_size]
+        :return: [batch_size, num_steps, 2*lstm_dim]
         """
         with tf.variable_scope("char_BiLSTM" if not name else name):
             lstm_cell = {}
@@ -171,12 +171,12 @@ class Model(object):
                 dtype=tf.float32,
                 sequence_length=lengths)
         return tf.concat(outputs, axis=2)
-    
-    #IDCNN layer 
-    def IDCNN_layer(self, model_inputs, 
+
+    #IDCNN layer
+    def IDCNN_layer(self, model_inputs,
                     name=None):
         """
-        :param idcnn_inputs: [batch_size, num_steps, emb_size] 
+        :param idcnn_inputs: [batch_size, num_steps, emb_size]
         :return: [batch_size, num_steps, cnn_output_width]
         """
         model_inputs = tf.expand_dims(model_inputs, 1)
@@ -192,7 +192,7 @@ class Model(object):
                 shape=[1, self.filter_width, self.embedding_dim,
                        self.num_filter],
                 initializer=self.initializer)
-            
+
             """
             shape of input = [batch, in_height, in_width, in_channels]
             shape of filter = [filter_height, filter_width, in_channels, out_channels]
@@ -239,7 +239,7 @@ class Model(object):
     def project_layer_bilstm(self, lstm_outputs, name=None):
         """
         hidden layer between lstm layer and logits
-        :param lstm_outputs: [batch_size, num_steps, emb_size] 
+        :param lstm_outputs: [batch_size, num_steps, emb_size]
         :return: [batch_size, num_steps, num_tags]
         """
         with tf.variable_scope("project"  if not name else name):
@@ -263,16 +263,16 @@ class Model(object):
                 pred = tf.nn.xw_plus_b(hidden, W, b)
 
             return tf.reshape(pred, [-1, self.num_steps, self.num_tags])
-    
+
     #Project layer for idcnn by crownpku
     #Delete the hidden layer, and change bias initializer
     def project_layer_idcnn(self, idcnn_outputs, name=None):
         """
-        :param lstm_outputs: [batch_size, num_steps, emb_size] 
+        :param lstm_outputs: [batch_size, num_steps, emb_size]
         :return: [batch_size, num_steps, num_tags]
         """
         with tf.variable_scope("project"  if not name else name):
-            
+
             # project to score of tags
             with tf.variable_scope("logits"):
                 W = tf.get_variable("W", shape=[self.cnn_output_width, self.num_tags],
@@ -315,7 +315,7 @@ class Model(object):
     def create_feed_dict(self, is_train, batch):
         """
         :param is_train: Flag, True for train batch
-        :param batch: list train/evaluate data 
+        :param batch: list train/evaluate data
         :return: structured data to feed
         """
         _, chars, segs, tags = batch
@@ -369,7 +369,7 @@ class Model(object):
 
     def evaluate(self, sess, data_manager, id_to_tag):
         """
-        :param sess: session  to run the model 
+        :param sess: session  to run the model
         :param data: list of data
         :param id_to_tag: index to tag name
         :return: evaluate result
@@ -390,6 +390,7 @@ class Model(object):
                     result.append(" ".join([char, gold, pred]))
                 results.append(result)
         return results
+
 
     def evaluate_line(self, sess, inputs, id_to_tag):
         trans = self.trans.eval()
