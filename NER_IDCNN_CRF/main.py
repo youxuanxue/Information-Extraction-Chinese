@@ -217,13 +217,19 @@ def evaluate_corpus():
     config = load_config(FLAGS.config_file)
     logger = get_logger(FLAGS.log_file)
     sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
-    test_manager = BatchManager(sentences, 100)
 
     # limit GPU memory
     tf_config = tf.ConfigProto()
     tf_config.gpu_options.allow_growth = True
     with open(FLAGS.map_file, "rb") as f:
         char_to_id, id_to_char, tag_to_id, id_to_tag = pickle.load(f)
+    test_data = prepare_dataset(
+        sentences, char_to_id, tag_to_id, FLAGS.lower
+    )
+    print("%i sentences in test." % (len(test_data)))
+
+    test_manager = BatchManager(test_data, 100)
+
     with tf.Session(config=tf_config) as sess:
         model = create_model(sess, Model, FLAGS.ckpt_path, load_word2vec, config, id_to_char, logger)
         evaluate(sess, model, "test", test_manager, id_to_tag, logger)
