@@ -224,7 +224,7 @@ def evaluate_corpus():
     with open(FLAGS.map_file, "rb") as f:
         char_to_id, id_to_char, tag_to_id, id_to_tag = pickle.load(f)
     test_data = prepare_dataset(
-        sentences, char_to_id, tag_to_id, FLAGS.lower
+        sentences, char_to_id, tag_to_id, FLAGS.lower, FLAGS.train
     )
     print("%i sentences in test." % (len(test_data)))
 
@@ -264,8 +264,8 @@ def main(_):
             clean(FLAGS)
         train()
     else:
-        evaluate_line()
-        # evaluate_corpus()
+        # evaluate_line()
+        evaluate_corpus()
 
 
 if __name__ == "__main__":
