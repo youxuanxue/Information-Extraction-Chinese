@@ -117,7 +117,7 @@ def prepare_dataset(sentences, char_to_id, tag_to_id, lower=False, train=True):
         if train:
             tags = [tag_to_id[w[-1]] for w in s]
         else:
-            tags = [none_index for _ in chars]
+            tags = [[tag_to_id[w[-1]] if w[-1] in tag_to_id else none_index for w in s]]
         data.append([string, chars, segs, tags])
 
     return data
