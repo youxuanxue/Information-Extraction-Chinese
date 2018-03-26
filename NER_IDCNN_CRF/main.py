@@ -166,10 +166,10 @@ def train():
         train_sentences, char_to_id, tag_to_id, FLAGS.lower
     )
     dev_data = prepare_dataset(
-        dev_sentences, char_to_id, tag_to_id, FLAGS.lower
+        dev_sentences, char_to_id, tag_to_id, FLAGS.lower, False
     )
     test_data = prepare_dataset(
-        test_sentences, char_to_id, tag_to_id, FLAGS.lower
+        test_sentences, char_to_id, tag_to_id, FLAGS.lower, False
     )
     print("%i / %i / %i sentences in train / dev / test." % (
         len(train_data), len(dev_data), len(test_data)))
