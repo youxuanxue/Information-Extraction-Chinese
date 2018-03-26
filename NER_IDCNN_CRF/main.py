@@ -264,8 +264,8 @@ def main(_):
             clean(FLAGS)
         train()
     else:
-        # evaluate_line()
-        evaluate_corpus()
+        evaluate_line()
+        # evaluate_corpus()
 
 
 if __name__ == "__main__":
