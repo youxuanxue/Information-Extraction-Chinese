@@ -32,9 +32,10 @@ python main.py \
 	--pre_emb=False \
 	--tag_schema=iob \
 	--max_epoch=50 \
-	--max_sentence=50000 \
+	--max_sentence=100000 \
 	--model_type=idcnn \
-	--train_file=/data1/xuejiao/data/match/corpus.txt
+	--train_file=/data1/xuejiao/data/match/corpus.txt \
+	--test_file=/data1/xuejiao/data/ops/header_ops_592_corpus.txt
 }
 
 

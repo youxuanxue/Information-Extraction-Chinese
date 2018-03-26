@@ -119,22 +119,24 @@ def split_sentences(total):
     return total[:train_len], total[train_len:train_len + dev_len], total[train_len + dev_len:]
 
 
+def split_dev_test(total):
+    length = len(total)
+    dev_len = int(length / 2)
+    random.seed(12345678)
+    random.shuffle(total)
+    return total[:dev_len], total[dev_len:]
+
+
 def train():
     # load data sets
-    # train_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros)
-    # dev_sentences = load_sentences(FLAGS.dev_file, FLAGS.lower, FLAGS.zeros)
-    # test_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros)
+    train_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
+    total_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
 
-    # split data to train, dev and test randomly
-    total_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
+    # split dev and test randomly
+    update_tag_scheme(train_sentences, FLAGS.tag_schema)
     update_tag_scheme(total_sentences, FLAGS.tag_schema)
 
-    train_sentences, dev_sentences, test_sentences = split_sentences(total_sentences)
-
-    # Use selected tagging scheme (IOB / IOBES)
-    # update_tag_scheme(train_sentences, FLAGS.tag_schema)
-    # update_tag_scheme(dev_sentences, FLAGS.tag_schema)
-    # update_tag_scheme(test_sentences, FLAGS.tag_schema)
+    dev_sentences, test_sentences = split_dev_test(total_sentences)
 
     # create maps if not exist
     if not os.path.isfile(FLAGS.map_file):
