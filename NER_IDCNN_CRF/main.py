@@ -101,9 +101,9 @@ def evaluate(sess, model, name, data, id_to_tag, logger):
             logger.info("new best dev f1 score:{:>.3f}".format(f1))
         return f1 > best_test_f1
     elif name == "test":
-        save_test_result(ner_results)
         best_test_f1 = model.best_test_f1.eval()
         if f1 > best_test_f1:
+            save_test_result(ner_results)
             tf.assign(model.best_test_f1, f1).eval()
             logger.info("new best test f1 score:{:>.3f}".format(f1))
         return f1 > best_test_f1
