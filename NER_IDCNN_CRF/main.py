@@ -101,6 +101,7 @@ def evaluate(sess, model, name, data, id_to_tag, logger):
             logger.info("new best dev f1 score:{:>.3f}".format(f1))
         return f1 > best_test_f1
     elif name == "test":
+        save_test_result(ner_results)
         best_test_f1 = model.best_test_f1.eval()
         if f1 > best_test_f1:
             tf.assign(model.best_test_f1, f1).eval()
@@ -108,15 +109,57 @@ def evaluate(sess, model, name, data, id_to_tag, logger):
         return f1 > best_test_f1
 
 
-def split_sentences(total):
+def save_test_result(results):
+    same_file = open(os.path.join(FLAGS.result_path, "same_predict.utf8"), "w")
+    diff_file = open(os.path.join(FLAGS.result_path, "diff_predict.utf8"), "w")
+    for block in results:
+        gold_tagged = []
+        pred_tagged = []
+        gold_cur_tag = None
+        pred_cur_tag = None
+        for line in block:
+            pieces = line.split(" ")
+            if len(pieces) == 3:
+                char = pieces[0]
+                gold = pieces[1]
+                pred = pieces[2]
+
+                if gold.startswith('B'):
+                    gold_cur_tag = gold.split("-")[1]
+                    gold_tagged.append("<%s>%s".format(gold_cur_tag, char))
+                elif gold.startswith("O") and gold_cur_tag:
+                    gold_tagged.append("</%s>%s".format(gold_cur_tag, char))
+                    gold_cur_tag = None
+                else:
+                    gold_tagged.append(char)
+
+                if pred.startswith('B'):
+                    pred_cur_tag = pred.split("-")[1]
+                    pred_tagged.append("<%s>%s".format(pred_cur_tag, char))
+                elif pred.startswith("O") and pred_cur_tag:
+                    pred_tagged.append("</%s>%s".format(pred_cur_tag, char))
+                    pred_cur_tag = None
+                else:
+                    pred_tagged.append(char)
+        gold_res = "".join(gold_tagged)
+        pred_res = "".join(pred_tagged)
+        if gold_res == pred_res:
+            same_file.write(gold_res + "\n\n")
+        else:
+            diff_file.write(gold_res + "\n" + pred_res + "\n\n")
+
+    same_file.close()
+    diff_file.close()
+
+
+def split_train_dev_sentences(total):
     length = len(total)
     dev_len = int(length / 10)
-    test_len = dev_len
-    train_len = length - dev_len - test_len
-    print("train_len: {} dev_len: {} test_len: {}".format(train_len, dev_len, test_len))
+    train_len = length - dev_len
+    print("train_len: {} dev_len: {}".format(train_len, dev_len))
     random.seed(12345678)
     random.shuffle(total)
-    return total[:train_len], total[train_len:train_len + dev_len], total[train_len + dev_len:]
+    return total[:train_len], total[train_len:]
 
 
 def split_dev_test(total):
@@ -129,14 +172,13 @@ def split_dev_test(total):
 
 def train():
     # load data sets
-    train_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
-    total_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
+    total_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
+    test_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros, 10000)
 
-    # split dev and test randomly
-    update_tag_scheme(train_sentences, FLAGS.tag_schema)
     update_tag_scheme(total_sentences, FLAGS.tag_schema)
+    update_tag_scheme(test_sentences, FLAGS.tag_schema)
 
-    dev_sentences, test_sentences = split_dev_test(total_sentences)
+    train_sentences, dev_sentences = split_train_dev_sentences(total_sentences)
 
     # create maps if not exist
     if not os.path.isfile(FLAGS.map_file):
