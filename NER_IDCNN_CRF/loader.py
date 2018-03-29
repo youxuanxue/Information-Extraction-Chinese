@@ -35,12 +35,7 @@ def load_sentences_by_tag(folder, tags, lower, zeros, max_num):
     """
     tags_files = [x + ".txt" for x in tags]
 
-    print(tags_files)
-
-    corpus_files = [os.path.abspath(f)
-                    for f in os.listdir(folder)
-                    if os.path.isfile(f) and f in tags_files]
-    print(corpus_files)
+    corpus_files = [folder + "/" + f for f in os.listdir(folder) if f in tags_files]
 
     tag_sentences = [load_sentences(f, lower, zeros, max_num)
                      for f in corpus_files]
