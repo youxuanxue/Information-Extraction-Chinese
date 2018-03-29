@@ -34,6 +34,7 @@ python main.py \
 	--max_epoch=50 \
 	--max_sentence=100000 \
 	--model_type=idcnn \
+	--tag_file=/data1/xuejiao/data/entity_tag.txt \
 	--train_file=/data1/xuejiao/data/match/corpus.txt \
 	--test_file=/data1/xuejiao/data/ops/header_ops_592_corpus.txt
 }
@@ -55,6 +56,7 @@ python main.py \
 	--max_epoch=50 \
 	--max_sentence=50000 \
 	--model_type=idcnn \
+	--tag_file=/data1/xuejiao/data/entity_tag.txt \
 	--test_file=/data1/xuejiao/data/ops/header_ops_592_corpus.txt
 }
 

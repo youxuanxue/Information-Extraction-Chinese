@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from data_utils import load_word2vec, input_from_line, BatchManager
-from loader import augment_with_pretrained, prepare_dataset
+from loader import augment_with_pretrained, prepare_dataset, load_entity_tags, load_sentences_by_tag
 from loader import char_mapping, tag_mapping
 from loader import load_sentences, update_tag_scheme
 from model import Model
@@ -46,12 +46,14 @@ flags.DEFINE_string("vocab_file",   "vocab.json",   "File for vocab")
 flags.DEFINE_string("config_file",  "config_file",  "File for config")
 flags.DEFINE_string("script",       "conlleval",    "evaluation script")
 flags.DEFINE_string("result_path",  "result",       "Path for results")
+flags.DEFINE_string("tag_file",     os.path.join("data", "tag.txt"), "Path for entity tags")
 flags.DEFINE_string("emb_file",     os.path.join("data", "vec.txt"),  "Path for pre_trained embedding")
 flags.DEFINE_string("train_file",   os.path.join("data", "example.train"),  "Path for train data")
 flags.DEFINE_string("dev_file",     os.path.join("data", "example.dev"),    "Path for dev data")
 flags.DEFINE_string("test_file",    os.path.join("data", "example.test"),   "Path for test data")
 
-flags.DEFINE_integer("max_sentence", 50000,  "maximum sentence num")
+
+flags.DEFINE_integer("max_sentence", 10000,  "maximum sentence num by on tag")
 
 flags.DEFINE_string("model_type", "idcnn", "Model type, can be idcnn or bilstm")
 #flags.DEFINE_string("model_type", "bilstm", "Model type, can be idcnn or bilstm")
@@ -162,17 +164,15 @@ def split_train_dev_sentences(total):
     return total[:train_len], total[train_len:]
 
 
-def split_dev_test(total):
-    length = len(total)
-    dev_len = int(length / 2)
-    random.seed(12345678)
-    random.shuffle(total)
-    return total[:dev_len], total[dev_len:]
-
-
 def train():
-    # load data sets
-    total_sentences = load_sentences(FLAGS.train_file, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
+    # load supported tags
+    tags = load_entity_tags(FLAGS.tag_file)
+
+    # load train and dev sentences
+    total_sentences = load_sentences_by_tag(
+        FLAGS.train_file, tags, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
+
+    # load test sentences
     test_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros, 10000)
 
     update_tag_scheme(total_sentences, FLAGS.tag_schema)

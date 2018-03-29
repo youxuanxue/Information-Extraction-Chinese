@@ -6,6 +6,47 @@ from data_utils import create_dico, create_mapping, zero_digits
 from data_utils import iob2, iob_iobes, get_seg_features
 
 
+def load_entity_tags(path):
+    """
+    Load supported entity tags from path
+    :param path:
+    :return: Entity tags list
+    """
+    tags = []
+    count = 0
+    for line in codecs.open(path, 'r', 'utf8'):
+        count += 1
+        item = line.rstrip()
+        if item:
+            tags.append(item)
+
+    return tags
+
+
+def load_sentences_by_tag(folder, tags, lower, zeros, max_num):
+    """
+    Load sentences. A line must contain at least a word and its tag.
+    Sentences are separated by empty lines.
+
+    :param folder: The folder path of the sentences corpus
+    :param tags: Supported tags list
+    :param max_num: The maximum sentence number for each tag
+    :return: Sentences list
+    """
+    tags_files = [x + ".txt" for x in tags]
+    corpus_files = [os.path.abspath(f)
+                    for f in os.listdir(folder)
+                    if os.path.isfile(f) and f in tags_files]
+
+    tag_sentences = [load_sentences(f, lower, zeros, max_num)
+                     for f in corpus_files]
+
+    corpus = [item for sublist in tag_sentences for item in sublist]
+
+    print("total corpus: {} from folder: {}".format(len(corpus), folder))
+
+    return corpus
+
 def load_sentences(path, lower, zeros, max_sentence):
     """
     Load sentences. A line must contain at least a word and its tag.
@@ -42,7 +83,7 @@ def load_sentences(path, lower, zeros, max_sentence):
         if 'DOCSTART' not in sentence[0][0]:
             sentences.append(sentence)
 
-    print("sentences: {}".format(len(sentences)))
+    print("sentences: {} from: {}".format(len(sentences), path))
     return sentences
 
 
