@@ -129,28 +129,39 @@ def save_test_result(results, name):
                 pred = pieces[2]
 
                 if gold.startswith('B'):
+                    if gold_cur_tag:
+                        gold_tagged.append("</{}>{}".format(gold_cur_tag, char))
                     gold_cur_tag = gold.split("-")[1]
                     gold_tagged.append("<{}>{}".format(gold_cur_tag, char))
-                elif gold.startswith("O") and gold_cur_tag:
-                    gold_tagged.append("</{}>{}".format(gold_cur_tag, char))
-                    gold_cur_tag = None
+                elif gold.startswith("O"):
+                    if gold_cur_tag:
+                        gold_tagged.append("</{}>{}".format(gold_cur_tag, char))
+                        gold_cur_tag = None
+                    else:
+                        gold_tagged.append(char)
                 else:
                     gold_tagged.append(char)
 
                 if pred.startswith('B'):
+                    if pred_cur_tag:
+                        pred_tagged.append("</{}>{}".format(pred_cur_tag, char))
                     pred_cur_tag = pred.split("-")[1]
                     pred_tagged.append("<{}>{}".format(pred_cur_tag, char))
-                elif pred.startswith("O") and pred_cur_tag:
-                    pred_tagged.append("</{}>{}".format(pred_cur_tag, char))
-                    pred_cur_tag = None
+                elif pred.startswith("O"):
+                    if pred_cur_tag:
+                        pred_tagged.append("</{}>{}".format(pred_cur_tag, char))
+                        pred_cur_tag = None
+                    else:
+                        pred_tagged.append(char)
                 else:
                     pred_tagged.append(char)
+
         gold_res = "".join(gold_tagged)
         pred_res = "".join(pred_tagged)
         if gold_res == pred_res:
             same_file.write(gold_res + "\n\n")
         else:
-            diff_file.write(gold_res + "\n" + pred_res + "\n\n")
+            diff_file.write("GOLD:" + gold_res + "\n" + "PRED:" + pred_res + "\n\n")
 
     same_file.close()
     diff_file.close()
