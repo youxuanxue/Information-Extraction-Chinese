@@ -99,22 +99,23 @@ def evaluate(sess, model, name, data, id_to_tag, logger):
     if name == "dev":
         best_test_f1 = model.best_dev_f1.eval()
         if f1 > best_test_f1:
+            save_test_result(ner_results, name)
             tf.assign(model.best_dev_f1, f1).eval()
             logger.info("new best dev f1 score:{:>.3f}".format(f1))
         return f1 > best_test_f1
     elif name == "test":
         best_test_f1 = model.best_test_f1.eval()
         if f1 > best_test_f1:
-            save_test_result(ner_results)
+            save_test_result(ner_results, name)
             tf.assign(model.best_test_f1, f1).eval()
             logger.info("new best test f1 score:{:>.3f}".format(f1))
         return f1 > best_test_f1
 
 
-def save_test_result(results):
+def save_test_result(results, name):
     print("save test result: {}".format(len(results)))
-    same_file = open(os.path.join(FLAGS.result_path, "same_predict.utf8"), "w")
-    diff_file = open(os.path.join(FLAGS.result_path, "diff_predict.utf8"), "w")
+    same_file = open(os.path.join(FLAGS.result_path, name + "same_predict.utf8"), "w")
+    diff_file = open(os.path.join(FLAGS.result_path, name + "diff_predict.utf8"), "w")
     for block in results:
         gold_tagged = []
         pred_tagged = []
