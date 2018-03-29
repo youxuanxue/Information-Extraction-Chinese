@@ -51,7 +51,7 @@ flags.DEFINE_string("emb_file",     os.path.join("data", "vec.txt"),  "Path for 
 flags.DEFINE_string("train_file",   os.path.join("data", "example.train"),  "Path for train data")
 flags.DEFINE_string("dev_file",     os.path.join("data", "example.dev"),    "Path for dev data")
 flags.DEFINE_string("test_file",    os.path.join("data", "example.test"),   "Path for test data")
-
+flags.DEFINE_string("train_folder", "" , "train folder for different tags")
 
 flags.DEFINE_integer("max_sentence", 10000,  "maximum sentence num by on tag")
 
@@ -171,7 +171,7 @@ def train():
 
     # load train and dev sentences
     total_sentences = load_sentences_by_tag(
-        FLAGS.train_file, tags, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
+        FLAGS.train_folder, tags, FLAGS.lower, FLAGS.zeros, FLAGS.max_sentence)
 
     # load test sentences
     test_sentences = load_sentences(FLAGS.test_file, FLAGS.lower, FLAGS.zeros, 10000)
