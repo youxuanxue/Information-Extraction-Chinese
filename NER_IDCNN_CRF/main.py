@@ -112,6 +112,7 @@ def evaluate(sess, model, name, data, id_to_tag, logger):
 
 
 def save_test_result(results):
+    print("save test result: {}".format(len(results)))
     same_file = open(os.path.join(FLAGS.result_path, "same_predict.utf8"), "w")
     diff_file = open(os.path.join(FLAGS.result_path, "diff_predict.utf8"), "w")
     for block in results:
@@ -128,18 +129,18 @@ def save_test_result(results):
 
                 if gold.startswith('B'):
                     gold_cur_tag = gold.split("-")[1]
-                    gold_tagged.append("<%s>%s".format(gold_cur_tag, char))
+                    gold_tagged.append("<{}>{}".format(gold_cur_tag, char))
                 elif gold.startswith("O") and gold_cur_tag:
-                    gold_tagged.append("</%s>%s".format(gold_cur_tag, char))
+                    gold_tagged.append("</{}>{}".format(gold_cur_tag, char))
                     gold_cur_tag = None
                 else:
                     gold_tagged.append(char)
 
                 if pred.startswith('B'):
                     pred_cur_tag = pred.split("-")[1]
-                    pred_tagged.append("<%s>%s".format(pred_cur_tag, char))
+                    pred_tagged.append("<{}>{}".format(pred_cur_tag, char))
                 elif pred.startswith("O") and pred_cur_tag:
-                    pred_tagged.append("</%s>%s".format(pred_cur_tag, char))
+                    pred_tagged.append("</{}>{}".format(pred_cur_tag, char))
                     pred_cur_tag = None
                 else:
                     pred_tagged.append(char)
