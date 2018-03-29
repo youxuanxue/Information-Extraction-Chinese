@@ -35,7 +35,7 @@ python main.py \
 	--model_type=idcnn \
 	--emb_file=/data1/xuejiao/data/embedding/vec.txt \
 	--tag_file=/data1/xuejiao/data/entity_tag.txt \
-	--train_folder=/data1/xuejiao/data/wiki/corpus/ \
+	--train_folder=/data1/xuejiao/data/wiki/corpus/corpus/ \
 	--train_file=/data1/xuejiao/data/match/corpus.txt \
 	--test_file=/data1/xuejiao/data/idcnn-crf-data/example.test
 }
