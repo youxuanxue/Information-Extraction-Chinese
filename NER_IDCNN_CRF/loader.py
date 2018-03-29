@@ -37,8 +37,7 @@ def load_sentences_by_tag(folder, tags, lower, zeros, max_num):
 
     corpus_files = [folder + "/" + f for f in os.listdir(folder) if f in tags_files]
 
-    tag_sentences = [load_sentences(f, lower, zeros, max_num)
-                     for f in corpus_files]
+    tag_sentences = [load_sentences(f, lower, zeros, max_num) for f in corpus_files]
 
     corpus = [item for sublist in tag_sentences for item in sublist]
 
@@ -76,7 +75,7 @@ def load_sentences(path, lower, zeros, max_sentence):
                 # word[0] = " "
             else:
                 word= line.split()
-            assert len(word) >= 2, print("error num: {}".format(num))
+            assert len(word) >= 2, print("error num: {}, file: {}".format(num, path))
             sentence.append(word)
     if len(sentence) > 0:
         if 'DOCSTART' not in sentence[0][0]:
